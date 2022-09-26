@@ -79,16 +79,7 @@ namespace Nethermind.Evm.Tracing
             }
             cap = highBound;
 
-            highBound = BinarySearchEstimate(lowBound, highBound, highBound, tx, header);
-
-            if (highBound == cap)
-            {
-                if (!TryExecutableTransaction(tx, header, highBound))
-                {
-                    return 0;
-                }
-            }
-            return highBound;
+            return BinarySearchEstimate(lowBound, highBound, cap, tx, header);
         }
         private long BinarySearchEstimate(long leftBound, long rightBound, long cap, Transaction tx, BlockHeader header)
         {
