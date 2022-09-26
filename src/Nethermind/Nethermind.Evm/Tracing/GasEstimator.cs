@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.AspNetCore.DataProtection.Repositories;
 using Nethermind.Core;
 using Nethermind.Core.Crypto;
 using Nethermind.Core.Specs;
@@ -23,39 +24,72 @@ namespace Nethermind.Evm.Tracing
             _stateProvider = stateProvider;
             _specProvider = specProvider;
         }
-
         public long Estimate(Transaction tx, BlockHeader header, EstimateGasTracer gasTracer)
         {
-            IReleaseSpec releaseSpec = _specProvider.GetSpec(header.Number + 1);
+            long lowBound = GasCostOf.Transaction - 1, highBound, cap;
+            UInt256 feeCap;
 
-            long intrinsicGas = tx.GasLimit - gasTracer.IntrinsicGasAt;
-            if (tx.GasLimit > header.GasLimit)
-            {
-                return Math.Max(intrinsicGas, gasTracer.GasSpent + gasTracer.CalculateAdditionalGasRequired(tx, releaseSpec));
-            }
+            tx.SenderAddress ??= Address.Zero;
 
-            tx.SenderAddress ??= Address.Zero; //If sender is not specified, use zero address.
-
-            // Setting boundaries for binary search - determine lowest and highest gas can be used during the estimation:
-            long leftBound = (gasTracer.GasSpent != 0 && gasTracer.GasSpent >= Transaction.BaseTxGasCost)
-                ? gasTracer.GasSpent - 1
-                : Transaction.BaseTxGasCost - 1;
-            long rightBound = (tx.GasLimit != 0 && tx.GasPrice >= Transaction.BaseTxGasCost)
-                ? tx.GasLimit
+            highBound = tx.GasLimit != 0 && tx.GasLimit >= GasCostOf.Transaction
+                ? gasTracer.GasSpent
                 : header.GasLimit;
 
-            UInt256 senderBalance = _stateProvider.GetBalance(tx.SenderAddress);
-
-            // Calculate and return additional gas required in case of insufficient funds.    
-            if (tx.Value != UInt256.Zero && tx.Value >= senderBalance)
+            if (tx.GasLimit != 0 && (tx.MaxFeePerGas != 0 || tx.MaxPriorityFeePerGas != 0))
             {
-                return gasTracer.CalculateAdditionalGasRequired(tx, releaseSpec);
+                return 0; // both gasPrice and (maxFeePerGas or maxPriorityFeePerGas) specified
+            }
+            else if (tx.GasPrice != 0)
+            {
+                feeCap = tx.GasPrice;
+            }
+            else if (tx.MaxFeePerGas != 0)
+            {
+                feeCap = tx.MaxFeePerGas;
+            }
+            else
+            {
+                feeCap = 0;
             }
 
-            // Execute binary search to find the optimal gas estimation.
-            return BinarySearchEstimate(leftBound, rightBound, rightBound, tx, header);
-        }
+            if (feeCap != 0)
+            {
+                UInt256 balance = _stateProvider.GetBalance(tx.SenderAddress);
+                UInt256 available = balance;
+                if (tx.Value != 0)
+                {
+                    if (tx.Value >= available)
+                    {
+                        return 0;
+                    }
+                    available -= tx.Value;
+                }
+                available.Divide(in feeCap, out UInt256 allowance);
 
+                if (highBound > allowance && allowance.IsUint64)
+                {
+                    highBound = (long)allowance;
+                }
+            }
+
+            long gasCap = tx.GasLimit;
+            if (gasCap != 0 && highBound > gasCap)
+            {
+                highBound = gasCap;
+            }
+            cap = highBound;
+
+            highBound = BinarySearchEstimate(lowBound, highBound, highBound, tx, header);
+
+            if (highBound == cap)
+            {
+                if (!TryExecutableTransaction(tx, header, highBound))
+                {
+                    return 0;
+                }
+            }
+            return highBound;
+        }
         private long BinarySearchEstimate(long leftBound, long rightBound, long cap, Transaction tx, BlockHeader header)
         {
             while (leftBound + 1 < rightBound)
