@@ -12,4 +12,8 @@
     <ProjectReference Include="..\Nethermind.Consensus.AuRa\Nethermind.Consensus.AuRa.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\V1\" />
+  </ItemGroup>
+
 </Project>

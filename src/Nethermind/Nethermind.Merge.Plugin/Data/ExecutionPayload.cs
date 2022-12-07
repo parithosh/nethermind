@@ -138,7 +138,7 @@ public class ExecutionPayload
     /// </summary>
     /// <returns>An RLP-decoded array of <see cref="Transaction"/>.</returns>
     public Transaction[] GetTransactions() => Transactions
-        .Select(t => Rlp.Decode<Transaction>(t, RlpBehaviors.SkipTypedWrapping))
+        .Select(t => Rlp.Decode<Transaction>(t, RlpBehaviors.SkipTypedWrapping | RlpBehaviors.SkipNetworkWrapper))
         .ToArray();
 
     /// <summary>
@@ -146,7 +146,7 @@ public class ExecutionPayload
     /// </summary>
     /// <param name="transactions">An array of transactions to encode.</param>
     public void SetTransactions(params Transaction[] transactions) => Transactions = transactions
-        .Select(t => Rlp.Encode(t, RlpBehaviors.SkipTypedWrapping).Bytes)
+        .Select(t => Rlp.Encode(t, RlpBehaviors.SkipTypedWrapping | RlpBehaviors.SkipNetworkWrapper).Bytes)
         .ToArray();
 
     public override string ToString() => $"{BlockNumber} ({BlockHash})";

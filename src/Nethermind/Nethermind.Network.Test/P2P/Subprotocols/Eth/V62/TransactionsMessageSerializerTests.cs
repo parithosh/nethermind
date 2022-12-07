@@ -1,11 +1,18 @@
 // SPDX-FileCopyrightText: 2022 Demerzel Solutions Limited
 // SPDX-License-Identifier: LGPL-3.0-only
 
+using System.Collections.Generic;
+using System.Linq;
+using DotNetty.Buffers;
 using Nethermind.Core;
 using Nethermind.Core.Crypto;
+using Nethermind.Core.Eip2930;
+using Nethermind.Core.Extensions;
 using Nethermind.Core.Test.Builders;
 using Nethermind.Crypto;
+using Nethermind.Int256;
 using Nethermind.Network.P2P.Subprotocols.Eth.V62.Messages;
+using Nethermind.Network.P2P.Subprotocols.Eth.V65.Messages;
 using NUnit.Framework;
 
 namespace Nethermind.Network.Test.P2P.Subprotocols.Eth.V62
@@ -49,6 +56,15 @@ namespace Nethermind.Network.Test.P2P.Subprotocols.Eth.V62
 
             TransactionsMessage message = new(new[] { transaction, transaction });
             SerializerTester.TestZero(serializer, message, "f84ae48203e8640a94b7705ae4c6f81b66cdb323c65f4e8133690fc099822710830102031b0102e48203e8640a94b7705ae4c6f81b66cdb323c65f4e8133690fc099822710830102031b0102");
+        }
+
+        [Test]
+        public void Roundtrip_different_txs()
+        {
+            TransactionsMessageSerializer serializer = new();
+            TransactionsMessage message = new(Build.A.BunchOfTransactions());
+
+            SerializerTester.TestZero(serializer, message);
         }
 
         [Test]
