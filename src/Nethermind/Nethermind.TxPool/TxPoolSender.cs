@@ -27,9 +27,11 @@ namespace Nethermind.TxPool
         public ValueTask<(Keccak, AcceptTxResult?)> SendTransaction(Transaction tx, TxHandlingOptions txHandlingOptions)
         {
             bool manageNonce = (txHandlingOptions & TxHandlingOptions.ManagedNonce) == TxHandlingOptions.ManagedNonce;
+            Console.WriteLine($"Recovering tx {tx.Hash}");
             tx.SenderAddress ??= _ecdsa.RecoverAddress(tx);
             if (tx.SenderAddress is null)
                 throw new ArgumentNullException(nameof(tx.SenderAddress));
+            Console.WriteLine($"ALL good {tx.SenderAddress}");
             if (manageNonce)
             {
                 tx.Nonce = _nonceManager.ReserveNonce(tx.SenderAddress);
