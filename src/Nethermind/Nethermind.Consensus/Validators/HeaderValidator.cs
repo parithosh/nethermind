@@ -39,7 +39,12 @@ namespace Nethermind.Consensus.Validators
             _daoBlockNumber = specProvider.DaoBlockNumber;
         }
 
-        public static bool ValidateHash(BlockHeader header) => header.Hash == header.CalculateHash();
+        public static bool ValidateHash(BlockHeader header)
+        {
+            var dd = header.Hash == header.CalculateHash();
+
+            return dd;
+        }
 
         /// <summary>
         /// Note that this does not validate seal which is the responsibility of <see cref="ISealValidator"/>>

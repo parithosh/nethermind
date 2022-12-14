@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 
 using System;
+using System.IO;
 using Nethermind.Core.Crypto;
 using Nethermind.Core.Extensions;
 using Nethermind.Serialization.Rlp;
@@ -25,6 +26,7 @@ namespace Nethermind.Network.Rlpx.Handshake
                 Rlp.Encode(msg.Nonce),
                 Rlp.Encode(msg.Version)
             ).Bytes;
+            File.AppendAllText("/home/dev/interop-4844-lite/neth2.log", data.ToHexString()+"\n");
 
             return _messagePad?.Pad(data) ?? data;
         }

@@ -39,6 +39,9 @@ namespace Nethermind.Network.P2P
             }
 
             IByteBuffer buffer = _messageSerializationService.ZeroSerialize(message);
+
+            _logger.Trace("WRITE: "+ buffer.ReadAllHex());
+            buffer.ResetReaderIndex();
             int length = buffer.ReadableBytes;
 
             // Running in background

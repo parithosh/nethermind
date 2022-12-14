@@ -9,7 +9,7 @@
     },
     "Aura (test miner 2)": {
       "commandName": "Project",
-      "commandLineArgs": "-c AuraTest -dd %NETHERMIND_DATA_DIR% --Init.IsMining true --JsonRpc.Enabled true --JsonRpc.Port 8548 --KeyStore.TestNodeKey 0xcb807c162517bfb179adfeee0d440b81e0bba770e377be4f887e0a4e6c27575d --Network.DiscoveryPort 30305 --Network.P2PPort 30305",
+      "commandLineArgs": "-c AuraTest -dd %NETHERMIND_DATA_DIR% --Init.IsMining true --JsonRpc.Enabled true --Json`Rpc.Port 8548 --KeyStore.TestNodeKey 0xcb807c162517bfb179adfeee0d440b81e0bba770e377be4f887e0a4e6c27575d --Network.DiscoveryPort 30305 --Network.P2PPort 30305",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -30,7 +30,28 @@
     },
     "Eip4844 Local Trace": {
       "commandName": "Project",
-      "commandLineArgs": "-c eip4844_local -dd %NETHERMIND_DATA_DIR% --log TRACE",
+      "commandLineArgs": "-c eip4844_local -dd /home/dev/dbs --log TRACE",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "Eip4844 Local Mine": {
+      "commandName": "Project",
+      "commandLineArgs": "-c /home/dev/interop-4844-lite/neth/cfg.json -dd /home/dev/dbs --log TRACE",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "Eip4844 Devnet v3": {
+      "commandName": "Project",
+      "commandLineArgs": "-c /home/dev/interop-4844-lite-devnetv3/v3/cfg.json -dd /home/dev/dbs --log TRACE",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "Eip4844 Devnet v3 Zulu": {
+      "commandName": "Project",
+      "commandLineArgs": "-c /home/dev/interop-4844-lite-devnetv3/v3-zulu/cfg.json -dd /home/dev/dbs --log TRACE",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -111,7 +132,7 @@
     },
     "Mainnet": {
       "commandName": "Project",
-      "commandLineArgs": "-c mainnet -dd %NETHERMIND_DATA_DIR% --JsonRpc.Enabled true",
+      "commandLineArgs": "-c mainnet -dd /home/dev/dbm --JsonRpc.Enabled true",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

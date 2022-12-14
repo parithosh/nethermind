@@ -23,6 +23,6 @@ namespace Nethermind.Network.P2P.Subprotocols.Eth.V62.Messages
             BlockHeaders = blockHeaders;
         }
 
-        public override string ToString() => $"{nameof(BlockHeadersMessage)}({BlockHeaders?.Length ?? 0})";
+        public override string ToString() => $"{nameof(BlockHeadersMessage)}({BlockHeaders?.Length ?? 0}|{string.Join("/", BlockHeaders?.Select(bh => $"{bh.Number},{bh.TotalDifficulty},{bh.Hash}"))})";
     }
 }

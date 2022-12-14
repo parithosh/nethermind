@@ -78,7 +78,7 @@ public class NodesLocator : INodesLocator
                     break;
                 }
 
-                if (_logger.IsTrace) _logger.Trace($"Waiting {_discoveryConfig.DiscoveryNewCycleWaitTime} for new nodes");
+                //if (_logger.IsTrace) _logger.Trace($"Waiting {_discoveryConfig.DiscoveryNewCycleWaitTime} for new nodes");
 
                 //we need to wait some time for pong messages received from new nodes we reached out to
                 try

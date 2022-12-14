@@ -189,6 +189,13 @@ namespace Nethermind.Network.P2P
 
             zeroPacket.PacketType = (byte)messageId;
             IProtocolHandler protocolHandler = _protocols[protocol];
+            var pos = zeroPacket.Content.ReaderIndex;
+            _logger.Trace(  $"{zeroPacket.PacketType}: " + zeroPacket.Content.ReadAllHex());
+            zeroPacket.Content.ResetReaderIndex();
+            if (pos != zeroPacket.Content.ReaderIndex)
+            {
+                Console.WriteLine(":sad_smile:");
+            }
             if (protocolHandler is IZeroProtocolHandler zeroProtocolHandler)
             {
                 zeroProtocolHandler.HandleMessage(zeroPacket);

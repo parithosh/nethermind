@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Nethermind.Core;
@@ -202,7 +203,7 @@ namespace Nethermind.TxPool
             {
                 _txsToSend = Interlocked.Exchange(ref _accumulatedTemporaryTxs, _txsToSend);
 
-                if (_logger.IsDebug) _logger.Debug($"Broadcasting transactions to all peers");
+                if (_logger.IsDebug) _logger.Debug($"Broadcasting transactions to all peers. {_txsToSend.Count}");
 
                 foreach ((_, ITxPoolPeer peer) in _peers)
                 {
@@ -232,6 +233,10 @@ namespace Nethermind.TxPool
         {
             try
             {
+                if (txs.Any())
+                {
+
+                }
                 peer.SendNewTransactions(txs, sendFullTx);
                 if (_logger.IsTrace) _logger.Trace($"Notified {peer} about transactions.");
             }

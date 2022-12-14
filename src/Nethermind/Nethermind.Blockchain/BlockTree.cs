@@ -68,10 +68,33 @@ namespace Nethermind.Blockchain
         public BlockHeader? Genesis { get; private set; }
         public Block? Head { get; private set; }
 
-        public BlockHeader? BestSuggestedHeader { get; private set; }
+        private BlockHeader? bestSuggestedHeader = null;
+        public BlockHeader? BestSuggestedHeader
+        {
+            get
+            {
+                return bestSuggestedHeader;
+            }
+            private set
+            {
+                bestSuggestedHeader = value;
+            }
+        }
 
         public Block? BestSuggestedBody { get; private set; }
-        public BlockHeader? LowestInsertedHeader { get; private set; }
+
+
+        private BlockHeader? lowestInsertedHeader;
+        public BlockHeader? LowestInsertedHeader  {
+            get
+            {
+                return lowestInsertedHeader;
+            }
+            private set
+            {
+                lowestInsertedHeader = value;
+            }
+        }
         public BlockHeader? BestSuggestedBeaconHeader { get; private set; }
 
         public Block? BestSuggestedBeaconBody { get; private set; }
@@ -1225,7 +1248,10 @@ namespace Nethermind.Blockchain
             return IsMainChain(header);
         }
 
-        public BlockHeader? FindBestSuggestedHeader() => BestSuggestedHeader;
+        public BlockHeader? FindBestSuggestedHeader()
+        {
+            return  BestSuggestedHeader;
+        }
 
         public bool WasProcessed(long number, Keccak blockHash)
         {

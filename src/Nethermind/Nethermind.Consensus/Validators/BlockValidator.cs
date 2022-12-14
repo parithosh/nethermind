@@ -142,6 +142,11 @@ public class BlockValidator : IBlockValidator
             if (processedBlock.Header.StateRoot != suggestedBlock.Header.StateRoot)
             {
                 if (_logger.IsError) _logger.Error($"- state root: expected {suggestedBlock.Header.StateRoot}, got {processedBlock.Header.StateRoot}");
+                var dd = new TxTrie(processedBlock.Transactions).RootHash;
+            }
+            if(processedBlock.Header.TxRoot != suggestedBlock.Header.TxRoot)
+            {
+                if (_logger.IsError) _logger.Error($"- TxRoot: expected {suggestedBlock.Header.TxRoot}, got {processedBlock.Header.TxRoot}");
             }
 
             for (int i = 0; i < processedBlock.Transactions.Length; i++)
