@@ -263,7 +263,7 @@ namespace Nethermind.Init.Steps
             TxSealer nonceReservingTxSealer =
                 new(txSigner, getApi.Timestamper);
             INonceManager nonceManager = new NonceManager(chainHeadInfoProvider.AccountStateProvider);
-            setApi.TxSender = new TxPoolSender(txPool, nonceReservingTxSealer, nonceManager, getApi.EthereumEcdsa!);
+            setApi.TxSender = new TxPoolSender(txPool, nonceReservingTxSealer, nonceManager, getApi.EthereumEcdsa!, _logger);
 
             // TODO: possibly hide it (but need to confirm that NDM does not really need it)
             IFilterStore filterStore = setApi.FilterStore = new FilterStore();

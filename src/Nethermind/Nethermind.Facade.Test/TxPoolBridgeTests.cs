@@ -29,7 +29,7 @@ namespace Nethermind.Facade.Test
             _txSigner = Substitute.For<ITxSigner>();
             _nonceManager = Substitute.For<INonceManager>();
             _ecdsa = Substitute.For<IEthereumEcdsa>();
-            _txSender = new TxPoolSender(_txPool, new TxSealer(_txSigner, Timestamper.Default), _nonceManager, _ecdsa);
+            _txSender = new TxPoolSender(_txPool, new TxSealer(_txSigner, Timestamper.Default), _nonceManager, _ecdsa, LimboTraceLogger.Instance);
         }
 
         [Test]

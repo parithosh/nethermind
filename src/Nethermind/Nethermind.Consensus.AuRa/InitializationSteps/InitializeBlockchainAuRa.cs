@@ -135,7 +135,7 @@ namespace Nethermind.Consensus.AuRa.InitializationSteps
                     _api.ReceiptStorage,
                     _api.ValidatorStore,
                     _api.FinalizationManager,
-                    new TxPoolSender(_api.TxPool, new TxSealer(_api.EngineSigner, _api.Timestamper), nonceManager, _api.EthereumEcdsa),
+                    new TxPoolSender(_api.TxPool, new TxSealer(_api.EngineSigner, _api.Timestamper), nonceManager, _api.EthereumEcdsa, _api.LogManager.GetClassLogger()),
                     _api.TxPool,
                     NethermindApi.Config<IBlocksConfig>(),
                     _api.LogManager,
