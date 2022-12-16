@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Nethermind.Core;
 using Nethermind.Core.Crypto;
 using Nethermind.Crypto;
+using Nethermind.Int256;
 using Nethermind.Logging;
 
 namespace Nethermind.TxPool
@@ -33,16 +34,18 @@ namespace Nethermind.TxPool
             tx.SenderAddress ??= _ecdsa.RecoverAddress(tx);
             if (tx.SenderAddress is null)
                 throw new ArgumentNullException(nameof(tx.SenderAddress));
-            _logger.Info($"SendTransaction {tx.SenderAddress} nonce: {_nonceManager.GetAccounts().GetAccount(tx.SenderAddress).Nonce}");
+            _logger.Info($"SendTransaction {tx.SenderAddress} accountNonce: {_nonceManager.GetAccounts().GetAccount(tx.SenderAddress).Nonce}");
             if (manageNonce)
             {
                 tx.Nonce = _nonceManager.ReserveNonce(tx.SenderAddress);
-                _logger.Info($"SendTransaction assigning {tx.SenderAddress} {tx.Nonce}");
+                _logger.Info($"SendTransaction assigning {tx.SenderAddress} reservedNonce: {tx.Nonce}");
                 txHandlingOptions |= TxHandlingOptions.AllowReplacingSignature;
             }
             else
             {
-                _logger.Info($"SendTransaction with nonce {tx.SenderAddress} {tx.Nonce}");
+                UInt256 nonce = _nonceManager.ReserveNonce(tx.SenderAddress);
+                _nonceManager.TxRejected(tx.SenderAddress);
+                _logger.Info($"SendTransaction with nonce {tx.SenderAddress} {tx.Nonce} curNonce: {nonce}");
                 _nonceManager.TxWithNonceReceived(tx.SenderAddress, tx.Nonce);
             }
             _sealer.Seal(tx, txHandlingOptions);
