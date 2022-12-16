@@ -19,6 +19,11 @@ public class NonceManager : INonceManager
         _accounts = accounts;
     }
 
+    public IAccountStateProvider GetAccounts()
+    {
+        return _accounts;
+    }
+
     public UInt256 ReserveNonce(Address address)
     {
         AddressNonceManager addressNonceManager =

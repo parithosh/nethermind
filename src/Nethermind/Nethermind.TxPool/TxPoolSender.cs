@@ -30,17 +30,21 @@ namespace Nethermind.TxPool
             tx.SenderAddress ??= _ecdsa.RecoverAddress(tx);
             if (tx.SenderAddress is null)
                 throw new ArgumentNullException(nameof(tx.SenderAddress));
+            Console.WriteLine($"SendTransaction {tx.SenderAddress} nonce: {_nonceManager.GetAccounts().GetAccount(tx.SenderAddress).Nonce}");
             if (manageNonce)
             {
                 tx.Nonce = _nonceManager.ReserveNonce(tx.SenderAddress);
+                Console.WriteLine($"SendTransaction assigning {tx.SenderAddress} {tx.Nonce}");
                 txHandlingOptions |= TxHandlingOptions.AllowReplacingSignature;
             }
             else
             {
+                Console.WriteLine($"SendTransaction with nonce {tx.SenderAddress} {tx.Nonce}");
                 _nonceManager.TxWithNonceReceived(tx.SenderAddress, tx.Nonce);
             }
             _sealer.Seal(tx, txHandlingOptions);
             AcceptTxResult result = _txPool.SubmitTx(tx, txHandlingOptions);
+            Console.WriteLine($"SendTransaction result {tx.SenderAddress} {tx.Nonce} {result == AcceptTxResult.Accepted}");
 
             if (result == AcceptTxResult.Accepted)
             {

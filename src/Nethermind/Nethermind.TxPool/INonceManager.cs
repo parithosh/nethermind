@@ -13,4 +13,5 @@ public interface INonceManager
     void TxWithNonceReceived(Address address, UInt256 nonce);
     void TxAccepted(Address address);
     void TxRejected(Address address);
+    public IAccountStateProvider GetAccounts();
 }
