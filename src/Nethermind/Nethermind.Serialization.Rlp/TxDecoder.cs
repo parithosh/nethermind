@@ -79,7 +79,7 @@ namespace Nethermind.Serialization.Rlp
                 DecodeSignature(rlpStream, rlpBehaviors, transaction);
             }
 
-            if ((rlpBehaviors & RlpBehaviors.AllowExtraData) != RlpBehaviors.AllowExtraData)
+            //if ((rlpBehaviors & RlpBehaviors.AllowExtraData) != RlpBehaviors.AllowExtraData)
             {
                 rlpStream.Check(lastCheck);
             }
@@ -250,7 +250,7 @@ namespace Nethermind.Serialization.Rlp
                 DecodeSignature(ref decoderContext, rlpBehaviors, transaction);
             }
 
-            if ((rlpBehaviors & RlpBehaviors.AllowExtraData) != RlpBehaviors.AllowExtraData)
+            //if ((rlpBehaviors & RlpBehaviors.AllowExtraData) != RlpBehaviors.AllowExtraData)
             {
                 decoderContext.Check(lastCheck);
             }

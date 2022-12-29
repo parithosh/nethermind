@@ -68,7 +68,7 @@ namespace Nethermind.Serialization.Rlp
             }
 
             bool allowExtraData = (rlpBehaviors & RlpBehaviors.AllowExtraData) != 0;
-            if (!allowExtraData)
+            //if (!allowExtraData)
             {
                 rlpStream.Check(lastCheck);
             }
@@ -143,12 +143,12 @@ namespace Nethermind.Serialization.Rlp
             }
 
             bool allowExtraData = (rlpBehaviors & RlpBehaviors.AllowExtraData) != 0;
-            if (!allowExtraData)
+            //if (!allowExtraData)
             {
                 decoderContext.Check(lastCheck);
             }
 
-            if (!allowExtraData)
+            //if (!allowExtraData)
             {
                 if (isStorage && _supportTxHash)
                 {
