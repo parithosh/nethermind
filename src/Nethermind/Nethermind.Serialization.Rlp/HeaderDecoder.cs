@@ -25,6 +25,8 @@ namespace Nethermind.Serialization.Rlp
 
             var headerRlp = decoderContext.PeekNextItem();
             int headerSequenceLength = decoderContext.ReadSequenceLength();
+
+            // From this variable we know where stream for header ends
             int headerCheck = decoderContext.Position + headerSequenceLength;
 
             Keccak? parentHash = decoderContext.DecodeKeccak();
@@ -70,9 +72,16 @@ namespace Nethermind.Serialization.Rlp
                 blockHeader.AuRaSignature = decoderContext.DecodeByteArray();
             }
 
-            if (blockHeader.Number >= Eip1559TransitionBlock)
+            // Just check if we have more data and assume that BaseFee encoded
+            //if (blockHeader.Number >= Eip1559TransitionBlock)
+            if (decoderContext.Position < headerCheck)
             {
                 blockHeader.BaseFeePerGas = decoderContext.DecodeUInt256();
+            }
+
+            if (decoderContext.Position < headerCheck)
+            {
+                // Decode withdrawals stuff here
             }
 
             if ((rlpBehaviors & RlpBehaviors.AllowExtraData) != RlpBehaviors.AllowExtraData)
@@ -190,7 +199,9 @@ namespace Nethermind.Serialization.Rlp
                 }
             }
 
-            if (header.Number >= Eip1559TransitionBlock)
+            // Just encode base fee if it's not null
+            // if (header.Number >= Eip1559TransitionBlock)
+            if (header.BaseFeePerGas is not null)
             {
                 rlpStream.Encode(header.BaseFeePerGas);
             }
