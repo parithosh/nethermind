@@ -12,22 +12,13 @@ namespace Nethermind.Crypto
 {
     public static class TransactionExtensions
     {
-        private static readonly RlpTxDecoder<Transaction> _txDecoder = new();
+        private static readonly TxDecoder<Transaction> _txDecoder = new();
+
         public static Keccak CalculateHash(this Transaction transaction)
         {
-            switch(transaction.Type){
-                case TxType.Blob:
-                    Merkle.Ize(out Dirichlet.Numerics.UInt256 root, transaction);
-                    byte[]? dataToHash = new byte[33];
-                    dataToHash[0] = (byte)TxType.Blob;
-                    root.ToLittleEndian(dataToHash.AsSpan(1));
-                    byte[] hash = Keccak.Compute(dataToHash).Bytes;
-                    return new Keccak(hash);
-                default:
-                    KeccakRlpStream stream = new();
-                    _txDecoder.Encode(stream, transaction, RlpBehaviors.SkipTypedWrapping);
-                    return stream.GetHash();
-            }
+            KeccakRlpStream stream = new();
+            _txDecoder.Encode(stream, transaction, RlpBehaviors.SkipTypedWrapping);
+            return stream.GetHash();
         }
     }
 }

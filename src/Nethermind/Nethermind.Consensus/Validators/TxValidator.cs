@@ -32,6 +32,12 @@ namespace Nethermind.Consensus.Validators
            just before the execution of the block / tx. */
         public bool IsWellFormed(Transaction transaction, IReleaseSpec releaseSpec)
         {
+            Console.WriteLine(@$"ValidateTxType(transaction, releaseSpec) && // {ValidateTxType(transaction, releaseSpec)}
+                   transaction.GasLimit >= IntrinsicGasCalculator.Calculate(transaction, releaseSpec) && // {transaction.GasLimit}>{IntrinsicGasCalculator.Calculate(transaction, releaseSpec)} {transaction.GasLimit}>{IntrinsicGasCalculator.Calculate(transaction, releaseSpec)}
+                   ValidateSignature(transaction.Signature, releaseSpec) && // {ValidateSignature(transaction.Signature, releaseSpec)}
+                   ValidateChainId(transaction) && // {ValidateChainId(transaction)}
+                   Validate1559GasFields(transaction, releaseSpec) && // {Validate1559GasFields(transaction, releaseSpec)}
+                   Validate4844GasFields(transaction, releaseSpec); // {Validate4844Fields(transaction)}");
             // validate type before calculating intrinsic gas to avoid exception
             return ValidateTxType(transaction, releaseSpec) &&
                    /* This is unnecessarily calculated twice - at validation and execution times. */

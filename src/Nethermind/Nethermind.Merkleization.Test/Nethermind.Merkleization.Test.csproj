@@ -23,6 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Nethermind.Crypto\Nethermind.Crypto.csproj" />
       <ProjectReference Include="..\Nethermind.Merkleization\Nethermind.Merkleization.csproj" />
     </ItemGroup>
 

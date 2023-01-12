@@ -66,27 +66,6 @@ namespace Nethermind.Merkleization
             FeedAtLevel(chunk.ToDirichlet(), 0);
         }
 
-        public void Feed(Address? value)
-        {
-            if (value is null)
-            {
-                Merkle.Ize(out UInt256 root, new byte[64]);
-                Feed(root);
-            }
-            else
-            {
-                Merkle.Ize(out UInt256 root, value);
-                Merkle.Ize(out UInt256 rooot, new UInt256[] { root, new UInt256(1) });
-                Feed(rooot);
-            }
-        }
-
-        public void Feed(AccessList? accessList)
-        {
-            Merkle.Ize(out UInt256 root, accessList);
-            Feed(root);
-        }
-
         public void Feed(Span<byte> bytes)
         {
             FeedAtLevel(MemoryMarshal.Cast<byte, UInt256>(bytes)[0], 0);

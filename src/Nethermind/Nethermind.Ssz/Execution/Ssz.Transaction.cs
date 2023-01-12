@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Nethermind.Core;
 using Nethermind.Core.Crypto;
 using Nethermind.Core.Eip2930;
@@ -89,15 +90,15 @@ namespace Nethermind.Ssz
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void Encode(Span<byte> span, Transaction transaction, ref int offset)
+        public static void Encode(Span<byte> span, Transaction transactionWithoutSignature, ref int offset)
         {
             int ToDynamicOffset = 192;
             int DataDynamicOffset = ToDynamicOffset + sizeof(byte) + Address.ByteLength;
-            int AccessListDynamicOffset = DataDynamicOffset + (transaction.Data?.Length ?? 0);
+            int AccessListDynamicOffset = DataDynamicOffset + (transactionWithoutSignature.Data?.Length ?? 0);
             int BlobVersionedHashesToDynamicOffset = AccessListDynamicOffset;
-            if (transaction.AccessList is not null)
+            if (transactionWithoutSignature.AccessList is not null)
             {
-                foreach (KeyValuePair<Address, IReadOnlySet<UInt256>> pair in transaction.AccessList.Data)
+                foreach (KeyValuePair<Address, IReadOnlySet<UInt256>> pair in transactionWithoutSignature.AccessList.Data)
                 {
                     BlobVersionedHashesToDynamicOffset += sizeof(int) + Address.ByteLength + sizeof(int) + pair.Value.Count * 32;
                 }
@@ -105,22 +106,22 @@ namespace Nethermind.Ssz
 
             Span<byte> localSpan = span[offset..];
             int localOffset = 0;
-            Encode(localSpan, new UInt256(transaction.ChainId ?? 0), ref localOffset);
-            Encode(localSpan, (ulong)transaction.Nonce, ref localOffset);
-            Encode(localSpan, transaction.GasPrice, ref localOffset);
-            Encode(localSpan, transaction.DecodedMaxFeePerGas, ref localOffset);
-            Encode(localSpan, (ulong)transaction.GasLimit, ref localOffset);
+            Encode(localSpan, new UInt256(transactionWithoutSignature.ChainId ?? 0), ref localOffset);
+            Encode(localSpan, (ulong)transactionWithoutSignature.Nonce, ref localOffset);
+            Encode(localSpan, transactionWithoutSignature.GasPrice, ref localOffset);
+            Encode(localSpan, transactionWithoutSignature.DecodedMaxFeePerGas, ref localOffset);
+            Encode(localSpan, (ulong)transactionWithoutSignature.GasLimit, ref localOffset);
             Encode(localSpan, ToDynamicOffset, ref localOffset);
-            Encode(localSpan, transaction.Value, ref localOffset);
+            Encode(localSpan, transactionWithoutSignature.Value, ref localOffset);
             Encode(localSpan, DataDynamicOffset, ref localOffset);
             Encode(localSpan, AccessListDynamicOffset, ref localOffset);
-            Encode(localSpan, transaction.MaxFeePerDataGas ?? 0, ref localOffset);
+            Encode(localSpan, transactionWithoutSignature.MaxFeePerDataGas ?? 0, ref localOffset);
             Encode(localSpan, BlobVersionedHashesToDynamicOffset, ref localOffset);
 
-            Encode(localSpan.Slice(ToDynamicOffset), transaction.To);
-            Encode(localSpan.Slice(DataDynamicOffset), transaction.Data);
-            Encode(localSpan.Slice(AccessListDynamicOffset), transaction.AccessList);
-            Encode(localSpan.Slice(BlobVersionedHashesToDynamicOffset), transaction.BlobVersionedHashes);
+            Encode(localSpan.Slice(ToDynamicOffset), transactionWithoutSignature.To);
+            Encode(localSpan.Slice(DataDynamicOffset), transactionWithoutSignature.Data);
+            Encode(localSpan.Slice(AccessListDynamicOffset), transactionWithoutSignature.AccessList);
+            Encode(localSpan.Slice(BlobVersionedHashesToDynamicOffset), transactionWithoutSignature.BlobVersionedHashes);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -190,6 +191,12 @@ namespace Nethermind.Ssz
             DecodeDynamicOffset(span, ref offset, out int transactionOffset);
             Transaction transaction = DecodeTransaction(span.Slice(transactionOffset, span.Length - transactionOffset));
             transaction.Signature = DecodeSignature(span, ref offset);
+
+            KeccakHash keccakHash = KeccakHash.Create();
+            byte txTypeStartingByte = (byte)TxType.Blob;
+            keccakHash.Update(MemoryMarshal.CreateSpan(ref txTypeStartingByte, 1), 0, 1);
+            keccakHash.Update(span, 0, span.Length);
+            transaction.Hash = new Keccak(keccakHash.Hash);
             return transaction;
         }
 
