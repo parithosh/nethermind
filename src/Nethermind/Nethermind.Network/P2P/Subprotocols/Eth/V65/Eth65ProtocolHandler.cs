@@ -99,21 +99,12 @@ namespace Nethermind.Network.P2P.Subprotocols.Eth.V65
         internal PooledTransactionsMessage FulfillPooledTransactionsRequest(
             GetPooledTransactionsMessage msg)
         {
-            int packetSizeLeft = TransactionsMessage.MaxPacketSize;
             using ArrayPoolList<Transaction> txsToSend = new(1024);
             for (int i = 0; i < msg.Hashes.Count; i++)
             {
                 if (_txPool.TryGetPendingTransaction(msg.Hashes[i], out Transaction tx))
                 {
-                    int txSize = tx.GetLength(_txDecoder);
-
-                    if (txSize > packetSizeLeft && txsToSend.Count > 0)
-                    {
-                        break;
-                    }
-
                     txsToSend.Add(tx);
-                    packetSizeLeft -= txSize;
                 }
             }
 
