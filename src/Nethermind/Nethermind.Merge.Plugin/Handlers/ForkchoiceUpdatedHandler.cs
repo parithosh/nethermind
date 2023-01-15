@@ -11,7 +11,6 @@ using Nethermind.Consensus.Processing;
 using Nethermind.Consensus.Producers;
 using Nethermind.Core;
 using Nethermind.Core.Crypto;
-using Nethermind.Core.Specs;
 using Nethermind.Crypto;
 using Nethermind.JsonRpc;
 using Nethermind.Logging;
@@ -39,7 +38,6 @@ public class ForkchoiceUpdatedHandler : IForkchoiceUpdatedHandler
     private readonly IBeaconPivot _beaconPivot;
     private readonly ILogger _logger;
     private readonly IPeerRefresher _peerRefresher;
-    private readonly ISpecProvider _specProvider;
 
     public ForkchoiceUpdatedHandler(
         IBlockTree blockTree,
@@ -52,7 +50,6 @@ public class ForkchoiceUpdatedHandler : IForkchoiceUpdatedHandler
         IMergeSyncController mergeSyncController,
         IBeaconPivot beaconPivot,
         IPeerRefresher peerRefresher,
-        ISpecProvider specProvider,
         ILogManager logManager)
     {
         _blockTree = blockTree ?? throw new ArgumentNullException(nameof(blockTree));
@@ -65,7 +62,6 @@ public class ForkchoiceUpdatedHandler : IForkchoiceUpdatedHandler
         _mergeSyncController = mergeSyncController;
         _beaconPivot = beaconPivot;
         _peerRefresher = peerRefresher;
-        _specProvider = specProvider;
         _logger = logManager.GetClassLogger();
     }
 
@@ -220,6 +216,7 @@ public class ForkchoiceUpdatedHandler : IForkchoiceUpdatedHandler
         }
 
         string? payloadId = null;
+
         if (payloadAttributes is not null)
         {
             if (newHeadBlock.Timestamp >= payloadAttributes.Timestamp)
@@ -227,26 +224,6 @@ public class ForkchoiceUpdatedHandler : IForkchoiceUpdatedHandler
                 var error = $"Payload timestamp {payloadAttributes.Timestamp} must be greater than block timestamp {newHeadBlock.Timestamp}.";
 
                 if (_logger.IsWarn) _logger.Warn($"Invalid payload attributes: {error}");
-
-                return ForkchoiceUpdatedV1Result.Error(error, MergeErrorCodes.InvalidPayloadAttributes);
-            }
-
-            var spec = _specProvider.GetSpec(newHeadBlock.Number + 1, payloadAttributes.Timestamp);
-
-            if (spec.WithdrawalsEnabled && payloadAttributes.Withdrawals is null)
-            {
-                var error = "Withdrawals cannot be null when EIP-4895 activated.";
-
-                if (_logger.IsInfo) _logger.Warn($"Invalid payload attributes: {error}");
-
-                return ForkchoiceUpdatedV1Result.Error(error, MergeErrorCodes.InvalidPayloadAttributes);
-            }
-
-            if (!spec.WithdrawalsEnabled && payloadAttributes.Withdrawals is not null)
-            {
-                var error = "Withdrawals must be null when EIP-4895 not activated.";
-
-                if (_logger.IsInfo) _logger.Warn($"Invalid payload attributes: {error}");
 
                 return ForkchoiceUpdatedV1Result.Error(error, MergeErrorCodes.InvalidPayloadAttributes);
             }
